@@ -7,6 +7,7 @@ import argparse
 import json
 import rospy
 import time
+from std_msgs.msg import Float32
 from sensor_msgs.msg import NavSatFix
 from geometry_msgs.msg import PointStamped
 
@@ -40,13 +41,22 @@ def get_global_position(base_url):
 def waterlinked(base_url):
     rospy.init_node('waterlinked', anonymous=True)
     rate = rospy.Rate(40)  # 40hz
-    raw_pub = rospy.Publisher('/waterlinked/acoustic_position/raw',
+    raw_pub = rospy.Publisher('acoustic_position/raw',
                               PointStamped, queue_size=120)
     filtered_pub = \
-        rospy.Publisher('/waterlinked/acoustic_position/filtered',
+        rospy.Publisher('acoustic_position/filtered',
                         PointStamped, queue_size=120)
-    global_pub = rospy.Publisher('/waterlinked/global_position',
+    global_pub = rospy.Publisher('global_position',
                                   NavSatFix, queue_size=120)
+
+    def set_depth(data,args):
+        g = 9.80665 #Gravitational acceleration
+        rho = 997.0474 #Fresh Water, Salt Water = 1023.6
+        depth = float(data.data)/(g*rho) #P = g*rho*h, Pressure is in Pascal.
+        rospy.loginfo("Depth: %s",depth)
+	payload = dict(depth=depth, temp=6.5) #Depth Fixed temp for now (degC).
+        r = requests.put("{}/api/v1/external/depth".format(base_url), json=payload, timeout=10)
+        return r.json()
 
     def publish_raw(data_raw):
         raw_point = PointStamped()
@@ -68,6 +78,9 @@ def waterlinked(base_url):
 
     last_raw, last_filtered = None, None
     while not rospy.is_shutdown():
+        #Skal rettes til i forhold til publisher fra depth sensor.
+        rospy.Subscriber("pressure",Float32,set_depth,base_url)
+
         data_raw = get_acoustic_position_raw(base_url)
 
         if last_raw is None:
@@ -114,6 +127,8 @@ if __name__ == '__main__':
                             default='http://192.168.2.94')
         args = parser.parse_args()
         base_url = args.url
+        rospy.loginfo("Connecting to: %s",base_url)
+
         waterlinked(base_url)
     except rospy.ROSInterruptException:
         pass
