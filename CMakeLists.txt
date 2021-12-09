@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(waterlinked_ros_driver)
+project(waterlinked_sbl_driver)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy

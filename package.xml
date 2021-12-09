@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>waterlinked_ros_driver</name>
+  <name>waterlinked_sbl_driver</name>
   <version>0.0.1</version>
   <description>ROS Driver for the Waterlinked Underwater GPS</description>
 
