@@ -56,7 +56,10 @@ def waterlinked(base_url):
         rospy.loginfo("Depth: %s",depth)
 	payload = dict(depth=depth, temp=6.5) #Depth Fixed temp for now (degC).
         r = requests.put("{}/api/v1/external/depth".format(base_url), json=payload, timeout=10)
-        return r.json()
+
+    #Skal rettes til i forhold til publisher fra depth sensor.
+    rospy.Subscriber("pressure",Float32,set_depth,base_url)
+
 
     def publish_raw(data_raw):
         raw_point = PointStamped()
@@ -78,8 +81,6 @@ def waterlinked(base_url):
 
     last_raw, last_filtered = None, None
     while not rospy.is_shutdown():
-        #Skal rettes til i forhold til publisher fra depth sensor.
-        rospy.Subscriber("pressure",Float32,set_depth,base_url)
 
         data_raw = get_acoustic_position_raw(base_url)
 
