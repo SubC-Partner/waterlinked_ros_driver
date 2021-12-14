@@ -50,15 +50,13 @@ def waterlinked(base_url):
                                   NavSatFix, queue_size=120)
     
     def set_depth(data,args):
-        g = 9.80665 #Gravitational acceleration
-        rho = 997.0474 #Fresh Water, Salt Water = 1023.6
-        depth = float(data.data)/(g*rho) #P = g*rho*h, Pressure is in Pascal.
+        depth = data.data
         rospy.loginfo("Depth: %s",depth)
 	payload = dict(depth=depth, temp=6.5) #Depth Fixed temp for now (degC).
         r = requests.put("{}/api/v1/external/depth".format(base_url), json=payload, timeout=10)
 
     #Skal rettes til i forhold til publisher fra depth sensor.
-    rospy.Subscriber("pressure",Float32,set_depth,base_url)
+    rospy.Subscriber("depth",Float32,set_depth,base_url)
 
 
     def publish_raw(data_raw):
