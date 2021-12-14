@@ -3,7 +3,6 @@
 
 from __future__ import print_function
 import requests
-import argparse
 import json
 import rospy
 import time
@@ -51,7 +50,7 @@ def waterlinked(base_url):
     
     def set_depth(data,args):
         depth = data.data
-        rospy.loginfo("Depth: %s",depth)
+        #rospy.loginfo("Depth: %s",depth)
 	payload = dict(depth=depth, temp=6.5) #Depth Fixed temp for now (degC).
         r = requests.put("{}/api/v1/external/depth".format(base_url), json=payload, timeout=10)
 
@@ -118,15 +117,8 @@ def waterlinked(base_url):
 
 if __name__ == '__main__':
     try:
-        parser = \
-            argparse.ArgumentParser(description='Push position and orientation of master to Underwater GPS'
-                                    )
-        parser.add_argument('-u', '--url', help='Base URL to use',
-                            type=str,
-                            default='http://192.168.2.94')
-        args = parser.parse_args()
-        base_url = args.url
-        rospy.loginfo("Connecting to: %s",base_url)
+        base_url = "http://192.168.2.94"
+        #rospy.loginfo("Connecting to: %s",base_url)
 
         waterlinked(base_url)
     except rospy.ROSInterruptException:
