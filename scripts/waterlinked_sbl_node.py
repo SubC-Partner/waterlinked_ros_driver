@@ -6,7 +6,7 @@ import requests
 import json
 import rospy
 import time
-from std_msgs.msg import Float32
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import NavSatFix
 from geometry_msgs.msg import PointStamped
 
@@ -49,7 +49,7 @@ def waterlinked(base_url):
                                   NavSatFix, queue_size=120)
 
     def set_depth(data,args):
-        depth = data.data
+        depth = data.pose.pose.position.z
         #rospy.loginfo("Depth: %s",depth)
 	payload = dict(depth=depth, temp=6.5) #Depth Fixed temp for now (degC).
 	try:
@@ -58,7 +58,7 @@ def waterlinked(base_url):
             rospy.logerr_throttle(30, "Could not send depth to SBL, possible ethernet connection issue")
 
     #Skal rettes til i forhold til publisher fra depth sensor.
-    rospy.Subscriber("depth",Float32,set_depth,base_url)
+    rospy.Subscriber("pose",Odometry,set_depth,base_url)
 
 
     def publish_raw(data_raw):
